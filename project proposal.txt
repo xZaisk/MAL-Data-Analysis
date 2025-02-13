@@ -1,0 +1,15 @@
+5. Studio Analysis: Does the Studio Impact Anime Ratings?
+Objective:
+Determine if certain anime studios consistently produce higher-rated anime.
+
+Skills Practiced:
+
+Data Aggregation (grouping by studio)
+Statistical Analysis (T-tests, ANOVA)
+Visualization (box plots, violin plots)
+
+Potential Insights:
+
+Which studios consistently produce highly ranked anime?
+Are big studios (e.g., Madhouse, Kyoto Animation) more successful?
+Do smaller studios produce hidden gems?

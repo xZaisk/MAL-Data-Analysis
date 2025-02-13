@@ -1,0 +1,29 @@
+---
+title: "MAL Anime Exploration"
+author: "Zain Khalid"
+date: "2025-01-28"
+output: html_document
+---
+
+## How do rank, mean score, and popularity interact in anime data?
+## Do certain factors (e.g., genre, studio, media type) influence these relationships?
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(readr)
+
+# Load dataset (update the path)
+df <- read_csv("mal_anime_list.csv")
+
+# View the first few rows
+head(df)
+
+# Check dataset dimensions
+cat("Dataset contains", nrow(df), "rows and", ncol(df), "columns.\n")
+
+# View column names
+colnames(df)
+
+# Count missing values in each column
+colSums(is.na(df))
