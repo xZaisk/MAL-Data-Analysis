@@ -1,0 +1,166 @@
+---
+title: "Report_R_Markdown_MAL"
+author: "Zain Khalid"
+date: "Last edited `r format(Sys.time(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r data include = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+
+mal_data_summary = read.csv("mal_anime_list.csv")
+```
+
+```{r My-Anime-List-Data}
+mal_data_summary
+
+# src, genre, start-end, num of ep
+# look at start and end of anime (seasonal trends)
+# long animes vs short
+
+```
+
+
+```{r quick-anime-search}
+
+# Animes that are ongoing have '0' episodes, MAL considers num of ep = ? if ongoing
+
+search_for_data <- mal_data_summary %>%
+  filter(str_detect(title, "Shingeki no Kyojin"))
+
+search_for_data
+```
+
+```{r Grouped-Studios-Ranked-On-Mean}
+studio_rankings <- mal_data_summary %>%
+  group_by(studios) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop" ) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(studio_rankings, 20)
+```
+
+```{r Individual-Studios-Ranked-On-Mean}
+studio_rankings <- mal_data_summary %>%
+  separate_rows(studios, sep = ", ") %>%  # Split multiple studios into separate rows
+  group_by(studios) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(studio_rankings, 20)
+
+```
+
+```{r Individual-Studios-Ranked-On-Mean-Min-n-Anime}
+studio_rankings <- mal_data_summary %>%
+  separate_rows(studios, sep = ", ") %>%  # Split multiple studios into separate rows
+  group_by(studios) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE), 
+    anime_count = n(),  # Count number of anime per studio
+    .groups = "drop"
+  ) %>%
+  filter(anime_count >= 50) %>% # Studios that have produced 50+ animes
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(studio_rankings, 20)
+
+```
+
+
+```{r Grouped-Genres-Based-On-Mean}
+genre_rankings <- mal_data_summary %>%
+  group_by(genres) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop"
+    ) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(genre_rankings, 20)
+```
+
+```{r Grouped-Genres-Based-On-Mean}
+genre_rankings <- mal_data_summary %>%
+  group_by(genres) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop" 
+  ) %>%
+  filter(anime_count >=10) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(genre_rankings, 20)
+```
+
+```{r Individual-Genres-Based-On-Means}
+genre_rankings <- mal_data_summary %>%
+  separate_rows(genres, sep = ", ") %>%
+  group_by(genres) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop" 
+  ) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(genre_rankings, 20)
+```
+```{r Individual-Genres-Based-On-Means-Min-1000}
+genre_rankings <- mal_data_summary %>%
+  separate_rows(genres, sep = ", ") %>%
+  group_by(genres) %>%
+  summarize(
+    avg_rating = mean(mean, na.rm = TRUE),
+    anime_count = n(),
+    .groups = "drop"
+  ) %>%
+  filter(anime_count >= 1000) %>%
+  arrange(desc(avg_rating)) %>%
+  mutate(rank = row_number())
+
+head(genre_rankings, 50)
+
+top_anime_genres <- head(genre_rankings, 50)
+
+ggplot(top_anime_genres, aes(x = reorder(genres, avg_rating), y = avg_rating)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() + 
+  labs(
+    title = "Top Anime Genres by Average Ratings (minimum 1,000 animes)",
+    x = "Genres",
+    y = "Average Ratings"
+  ) + 
+  theme_minimal()
+```
+
+
+```{r MAL-Popularity-vs-Rating}
+ggplot(mal_data_summary, aes(x = popularity, y = mean)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "lm", col = "red") +
+  labs(
+    title = "MyAnimeList Popularity vs Rating",
+    x = "Popularity Rank",
+    y = "Mean Rating"
+  )
+```
